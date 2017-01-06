@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -28,22 +26,24 @@ public class Server extends VotePOA{
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        candidates.forEach(candidate -> {
-            stringBuilder
-                    .append("Name: ")
-                    .append(candidate.getName())
-                    .append(", ")
-                    .append("Vote: ")
-                    .append(candidate.getVote())
-                    .append("\n");
-        });
+        candidates.forEach(candidate -> stringBuilder
+                .append("Name: ")
+                .append(candidate.getName())
+                .append(", ")
+                .append("Vote: ")
+                .append(candidate.getVote())
+                .append("\n"));
 
         return stringBuilder.toString();
     }
 
     @Override
     public void castVote(String name) {
-
+        candidates.forEach(candidate -> {
+            if (candidate.getName().equals(name)){
+                candidate.setVote(candidate.getVote() + 1);
+            }
+        });
     }
 
 
