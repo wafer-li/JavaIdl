@@ -1,57 +1,51 @@
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import vote.VotePOA;
+import vote.Vote;
+import vote.VoteHelper;
 
 /**
  * This is the Server class
  * Please put some info here.
  *
  * @author Wafer Li
- * @since 17/1/6 22:15
+ * @since 17/1/6 22:47
  */
-public class Server extends VotePOA{
+public class Server {
+    public static void main(String[] args) {
 
-    private List<Candidate> candidates;
+        try {
+            ORB orb = ORB.init(args, null);
 
-    private ORB orb;
+            POA rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            rootPoa.the_POAManager().activate();
 
-    public Server() {
-        candidates = IntStream.rangeClosed(1, 10)
-                .mapToObj(value -> new Candidate("candidate " + value, 0))
-                .collect(Collectors.toList());
-    }
+            VoteService voteService = new VoteService();
+            voteService.setOrb(orb);
 
-    @Override
-    public String getList() {
+            Object reference = rootPoa.servant_to_reference(voteService);
+            Vote vote = VoteHelper.narrow(reference);
 
-        StringBuilder stringBuilder = new StringBuilder();
+            Object nameServiceReference = orb.resolve_initial_references("NameService");
+            NamingContextExt namingContextExt = NamingContextExtHelper.narrow(nameServiceReference);
 
-        candidates.forEach(candidate -> stringBuilder
-                .append("Name: ")
-                .append(candidate.getName())
-                .append(", ")
-                .append("Vote: ")
-                .append(candidate.getVote())
-                .append("\n"));
+            String name = "Vote";
+            NameComponent path[] = namingContextExt.to_name(name);
+            namingContextExt.rebind(path, vote);
 
-        return stringBuilder.toString();
-    }
+            System.out.println("VoteServer ready and waiting ...");
 
-    @Override
-    public void castVote(String name) {
-        candidates.forEach(candidate -> {
-            if (candidate.getName().equals(name)){
-                candidate.setVote(candidate.getVote() + 1);
-            }
-        });
-    }
+            orb.run();
 
-
-    public void setOrb(ORB orb) {
-        this.orb = orb;
+            System.in.read();
+            orb.shutdown(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
