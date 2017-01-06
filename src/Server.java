@@ -1,3 +1,5 @@
+import org.omg.CORBA.ORB;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -14,6 +16,8 @@ import vote.VotePOA;
 public class Server extends VotePOA{
 
     private List<Candidate> candidates;
+
+    private ORB orb;
 
     public Server() {
         candidates = IntStream.rangeClosed(1, 10)
@@ -47,4 +51,7 @@ public class Server extends VotePOA{
     }
 
 
+    public void setOrb(ORB orb) {
+        this.orb = orb;
+    }
 }
