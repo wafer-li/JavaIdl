@@ -21,7 +21,7 @@ public class VoteService extends VotePOA{
 
     VoteService() {
         candidates = IntStream.rangeClosed(1, 10)
-                .mapToObj(value -> new Candidate("candidate " + value, 0))
+                .mapToObj(value -> new Candidate("candidate" + value, 0))
                 .collect(Collectors.toList());
     }
 
